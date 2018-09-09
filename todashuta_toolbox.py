@@ -126,6 +126,11 @@ def enable_my_keymaps():
     kmi = km.keymap_items.new(TranslatedUI_toggle.bl_idname, 'PAUSE', 'PRESS')
     addon_keymaps.append((km, kmi))
 
+    # QでxyzDistanceToBoundBoxCenter
+    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    kmi = km.keymap_items.new(XYZDistanceToBoundBoxCenter.bl_idname, 'Q', 'PRESS')
+    addon_keymaps.append((km, kmi))
+    
     # 3Dカーソルの移動を Alt-左クリック に変更する
     km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
     kmi = km.keymap_items.new('view3d.cursor3d', 'ACTIONMOUSE', 'PRESS', alt=True)
