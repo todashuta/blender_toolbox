@@ -16,6 +16,15 @@ bl_info = {
 }
 
 
+class NoOperation(bpy.types.Operator):
+    bl_idname = "object.no_operation"
+    bl_label = "NOOP"
+    bl_description = "Do Nothing"
+
+    def execute(self, context):
+        return {"FINISHED"}
+
+
 class XYZDistanceToBoundBoxCenter(bpy.types.Operator):
     """todashuta_toolbox XYZ Distance To Bounding Box Center"""
     bl_idname = "object.todashuta_toolbox_xyz_distance_to_boundbox_center"
@@ -75,27 +84,142 @@ class TranslatedTooltips_toggle(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def register():
-    bpy.utils.register_class(XYZDistanceToBoundBoxCenter)
-    bpy.utils.register_class(TranslatedUI_toggle)
-    bpy.utils.register_class(TranslatedTooltips_toggle)
+class ToggleMyKeymaps(bpy.types.Operator):
+    """Toggle My Keymaps"""
+    bl_idname = "object.todashuta_toolbox_toggle_mykeymaps"
+    bl_label = "Toggle My Keymaps"
+
+    def execute(self, context):
+        if enabled_my_keymaps():
+            disable_my_keymaps()
+            self.report({'INFO'}, "my keymaps are disabled")
+        else:
+            enable_my_keymaps()
+            self.report({'INFO'}, "my keymaps are enabled")
+        return {'FINISHED'}
+
+
+def kmi_props_setattr(kmi_props, attr, value):
+    try:
+        setattr(kmi_props, attr, value)
+    except AttributeError:
+        print("Warning: property '%s' not found in keymap item '%s'" %
+              (attr, kmi_props.__class__.__name__))
+    except Exception as e:
+        print("Warning: %r" % e)
+
+
+addon_keymaps = []
+
+
+def enabled_my_keymaps():
+    return len(addon_keymaps) > 0
+
+
+def enable_my_keymaps():
     kc = bpy.context.window_manager.keyconfigs.addon
-    if kc:
-        km = kc.keymaps.new(name="Window", space_type="EMPTY")
-        kmi = km.keymap_items.new('object.todashuta_toolbox_translatedui_toggle', 'PAUSE', 'PRESS')
+    if not kc:
+        return
+
+    # PauseキーでToggle Translated UI
+    km = kc.keymaps.new(name="Window", space_type="EMPTY")
+    kmi = km.keymap_items.new(TranslatedUI_toggle.bl_idname, 'PAUSE', 'PRESS')
+    addon_keymaps.append((km, kmi))
+
+    # 3Dカーソルの移動を Alt-左クリック に変更する
+    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    kmi = km.keymap_items.new('view3d.cursor3d', 'ACTIONMOUSE', 'PRESS', alt=True)
+    addon_keymaps.append((km, kmi))
+
+    # 左クリック操作を無効化する
+    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    kmi = km.keymap_items.new(NoOperation.bl_idname, 'ACTIONMOUSE', 'PRESS')
+    addon_keymaps.append((km, kmi))
+
+    # ビューの回転を Shift-中ボタン に変更する
+    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    kmi = km.keymap_items.new('view3d.rotate', 'MIDDLEMOUSE', 'PRESS', shift=True)
+    addon_keymaps.append((km, kmi))
+
+    # ビューのパンを 中ボタン に変更する (Shift押下不要にする)
+    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    kmi = km.keymap_items.new('view3d.move', 'MIDDLEMOUSE', 'PRESS')
+    addon_keymaps.append((km, kmi))
+
+    # UV Editor の2Dカーソル移動を Alt+左クリック に変更する
+    km = kc.keymaps.new('UV Editor', space_type='EMPTY', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('uv.cursor_set', 'ACTIONMOUSE', 'PRESS', alt=True)
+    addon_keymaps.append((km, kmi))
+
+    # UV Editor の左クリック操作を 色を採取 に変更する
+    km = kc.keymaps.new('UV Editor', space_type='EMPTY', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('image.sample', 'ACTIONMOUSE', 'PRESS')
+    addon_keymaps.append((km, kmi))
+
+    # 選択のCの操作をCを押してる間だけ有効にする
+    km = kc.keymaps.new('View3D Gesture Circle', space_type='EMPTY', region_type='WINDOW', modal=True)
+    kmi = km.keymap_items.new_modal('CANCEL', 'C', 'RELEASE')
+    addon_keymaps.append((km, kmi))
+
+    # 選択のBの操作をCを押してる間だけ有効にする
+    km = kc.keymaps.new('Gesture Border', space_type='EMPTY', region_type='WINDOW', modal=True)
+    kmi = km.keymap_items.new_modal('CANCEL', 'B', 'RELEASE')
+    addon_keymaps.append((km, kmi))
+
+    # Console Ctrl-A 行頭
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.move', 'A', 'PRESS', ctrl=True)
+    kmi_props_setattr(kmi.properties, 'type', 'LINE_BEGIN')
+    addon_keymaps.append((km, kmi))
+    # Console Ctrl-E 行頭
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.move', 'E', 'PRESS', ctrl=True)
+    kmi_props_setattr(kmi.properties, 'type', 'LINE_END')
+    addon_keymaps.append((km, kmi))
+    # Console Ctrl-B 前の文字
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.move', 'B', 'PRESS', ctrl=True)
+    kmi_props_setattr(kmi.properties, 'type', 'PREVIOUS_CHARACTER')
+    addon_keymaps.append((km, kmi))
+    # Console Ctrl-F 次の文字
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.move', 'F', 'PRESS', ctrl=True)
+    kmi_props_setattr(kmi.properties, 'type', 'NEXT_CHARACTER')
+    addon_keymaps.append((km, kmi))
+    # Console Ctrl-H 前の文字を削除
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.delete', 'H', 'PRESS', ctrl=True)
+    kmi_props_setattr(kmi.properties, 'type', 'PREVIOUS_CHARACTER')
+    addon_keymaps.append((km, kmi))
+    # Console Ctrl-U 行をクリア
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.clear_line', 'U', 'PRESS', ctrl=True)
+    addon_keymaps.append((km, kmi))
+    # Console Ctrl-P 履歴(一つ前)
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.history_cycle', 'P', 'PRESS', ctrl=True)
+    kmi_props_setattr(kmi.properties, 'reverse', True)
+    addon_keymaps.append((km, kmi))
+    # Console Ctrl-N 履歴(一つ次)
+    km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
+    kmi = km.keymap_items.new('console.history_cycle', 'N', 'PRESS', ctrl=True)
+    addon_keymaps.append((km, kmi))
+
+
+def disable_my_keymaps():
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+
+
+def register():
+    bpy.utils.register_module(__name__)
+    enable_my_keymaps()
 
 
 def unregister():
-    bpy.utils.unregister_class(XYZDistanceToBoundBoxCenter)
-    bpy.utils.unregister_class(TranslatedUI_toggle)
-    bpy.utils.unregister_class(TranslatedTooltips_toggle)
-    kc = bpy.context.window_manager.keyconfigs.addon
-    if kc:
-        km = kc.keymaps["Window"]
-        for kmi in km.keymap_items:
-            if kmi.idname == 'object.todashuta_toolbox_translatedui_toggle':
-                km.keymap_items.remove(kmi)
-                break
+    bpy.utils.unregister_module(__name__)
+    disable_my_keymaps()
 
 
 if __name__ == "__main__":
