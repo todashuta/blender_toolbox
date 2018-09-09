@@ -49,12 +49,12 @@ class XYZDistanceToBoundBoxCenter(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class TranslatedUI_toggle(bpy.types.Operator):
+class ToggleTranslatedUI(bpy.types.Operator):
     # 参考:
     # https://blender.jp/modules/newbb/index.php?post_id=7549
 
     """Toggle Translated UI"""
-    bl_idname = "object.todashuta_toolbox_translatedui_toggle"
+    bl_idname = "object.todashuta_toolbox_toggle_translated_ui"
     bl_label = "Toggle Translated UI"
 
     def execute(self, context):
@@ -68,9 +68,9 @@ class TranslatedUI_toggle(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class TranslatedTooltips_toggle(bpy.types.Operator):
+class ToggleTranslatedTooltips(bpy.types.Operator):
     """Toggle Translated Tooltips"""
-    bl_idname = "object.todashuta_toolbox_translatedtooltips_toggle"
+    bl_idname = "object.todashuta_toolbox_toggle_translated_tooltips"
     bl_label = "Toggle Translated Tooltips"
 
     def execute(self, context):
@@ -123,14 +123,14 @@ def enable_my_keymaps():
 
     # PauseキーでToggle Translated UI
     km = kc.keymaps.new(name="Window", space_type="EMPTY")
-    kmi = km.keymap_items.new(TranslatedUI_toggle.bl_idname, 'PAUSE', 'PRESS')
+    kmi = km.keymap_items.new(ToggleTranslatedUI.bl_idname, 'PAUSE', 'PRESS')
     addon_keymaps.append((km, kmi))
 
     # QでxyzDistanceToBoundBoxCenter
     km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
     kmi = km.keymap_items.new(XYZDistanceToBoundBoxCenter.bl_idname, 'Q', 'PRESS')
     addon_keymaps.append((km, kmi))
-    
+
     # 3Dカーソルの移動を Alt-左クリック に変更する
     km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
     kmi = km.keymap_items.new('view3d.cursor3d', 'ACTIONMOUSE', 'PRESS', alt=True)
