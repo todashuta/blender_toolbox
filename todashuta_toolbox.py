@@ -25,6 +25,16 @@ class NoOperation(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class Reset2DCursor(bpy.types.Operator):
+    bl_idname = "object.reset_2d_cursor"
+    bl_label = "Reset 2D Cursor"
+    bl_description = "Reset 2D Cursor"
+
+    def execute(self, context):
+        bpy.ops.uv.cursor_set(location=(0.0, 0.0))
+        return {'FINISHED'}
+
+
 class XYZDistanceToBoundBoxCenter(bpy.types.Operator):
     """todashuta_toolbox XYZ Distance To Bounding Box Center"""
     bl_idname = "object.todashuta_toolbox_xyz_distance_to_boundbox_center"
@@ -132,44 +142,49 @@ def enable_my_keymaps():
     addon_keymaps.append((km, kmi))
 
     # 3Dカーソルの移動を Alt-左クリック に変更する
-    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
-    kmi = km.keymap_items.new('view3d.cursor3d', 'ACTIONMOUSE', 'PRESS', alt=True)
-    addon_keymaps.append((km, kmi))
+    #km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    #kmi = km.keymap_items.new('view3d.cursor3d', 'ACTIONMOUSE', 'PRESS', alt=True)
+    #addon_keymaps.append((km, kmi))
 
     # 左クリック操作を無効化する
-    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
-    kmi = km.keymap_items.new(NoOperation.bl_idname, 'ACTIONMOUSE', 'PRESS')
-    addon_keymaps.append((km, kmi))
+    #km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    #kmi = km.keymap_items.new(NoOperation.bl_idname, 'ACTIONMOUSE', 'PRESS')
+    #addon_keymaps.append((km, kmi))
 
     # ビューの回転を Shift-中ボタン に変更する
-    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
-    kmi = km.keymap_items.new('view3d.rotate', 'MIDDLEMOUSE', 'PRESS', shift=True)
-    addon_keymaps.append((km, kmi))
+    #km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    #kmi = km.keymap_items.new('view3d.rotate', 'MIDDLEMOUSE', 'PRESS', shift=True)
+    #addon_keymaps.append((km, kmi))
 
     # ビューのパンを 中ボタン に変更する (Shift押下不要にする)
-    km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
-    kmi = km.keymap_items.new('view3d.move', 'MIDDLEMOUSE', 'PRESS')
-    addon_keymaps.append((km, kmi))
+    #km = kc.keymaps.new("3D View", space_type="VIEW_3D", region_type="WINDOW", modal=False)
+    #kmi = km.keymap_items.new('view3d.move', 'MIDDLEMOUSE', 'PRESS')
+    #addon_keymaps.append((km, kmi))
 
     # UV Editor の2Dカーソル移動を Alt+左クリック に変更する
-    km = kc.keymaps.new('UV Editor', space_type='EMPTY', region_type='WINDOW', modal=False)
-    kmi = km.keymap_items.new('uv.cursor_set', 'ACTIONMOUSE', 'PRESS', alt=True)
-    addon_keymaps.append((km, kmi))
+    #km = kc.keymaps.new('UV Editor', space_type='EMPTY', region_type='WINDOW', modal=False)
+    #kmi = km.keymap_items.new('uv.cursor_set', 'ACTIONMOUSE', 'PRESS', alt=True)
+    #addon_keymaps.append((km, kmi))
 
     # UV Editor の左クリック操作を 色を採取 に変更する
+    #km = kc.keymaps.new('UV Editor', space_type='EMPTY', region_type='WINDOW', modal=False)
+    #kmi = km.keymap_items.new('image.sample', 'ACTIONMOUSE', 'PRESS')
+    #addon_keymaps.append((km, kmi))
+
+    # Shift-C で UV Editor の2Dカーソルをリセットする
     km = kc.keymaps.new('UV Editor', space_type='EMPTY', region_type='WINDOW', modal=False)
-    kmi = km.keymap_items.new('image.sample', 'ACTIONMOUSE', 'PRESS')
+    kmi = km.keymap_items.new(Reset2DCursor.bl_idname, 'C', 'PRESS', shift=True)
     addon_keymaps.append((km, kmi))
 
     # 選択のCの操作をCを押してる間だけ有効にする
-    km = kc.keymaps.new('View3D Gesture Circle', space_type='EMPTY', region_type='WINDOW', modal=True)
-    kmi = km.keymap_items.new_modal('CANCEL', 'C', 'RELEASE')
-    addon_keymaps.append((km, kmi))
+    #km = kc.keymaps.new('View3D Gesture Circle', space_type='EMPTY', region_type='WINDOW', modal=True)
+    #kmi = km.keymap_items.new_modal('CANCEL', 'C', 'RELEASE')
+    #addon_keymaps.append((km, kmi))
 
     # 選択のBの操作をCを押してる間だけ有効にする
-    km = kc.keymaps.new('Gesture Border', space_type='EMPTY', region_type='WINDOW', modal=True)
-    kmi = km.keymap_items.new_modal('CANCEL', 'B', 'RELEASE')
-    addon_keymaps.append((km, kmi))
+    #km = kc.keymaps.new('Gesture Border', space_type='EMPTY', region_type='WINDOW', modal=True)
+    #kmi = km.keymap_items.new_modal('CANCEL', 'B', 'RELEASE')
+    #addon_keymaps.append((km, kmi))
 
     # Console Ctrl-A 行頭
     km = kc.keymaps.new('Console', space_type='CONSOLE', region_type='WINDOW', modal=False)
