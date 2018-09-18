@@ -109,6 +109,30 @@ class ToggleMyKeymaps(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class CustomMenu(bpy.types.Panel):
+    bl_label = "todashuta toolbox"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "Tools"
+    bl_context = "objectmode"
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def draw_header(self, context):
+        layout = self.layout
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+
+        layout.operator(ToggleTranslatedUI.bl_idname, text=ToggleTranslatedUI.bl_label)
+        layout.operator(ToggleTranslatedTooltips.bl_idname, text=ToggleTranslatedTooltips.bl_label)
+        layout.operator(ToggleMyKeymaps.bl_idname, text=ToggleMyKeymaps.bl_label)
+        layout.operator(XYZDistanceToBoundBoxCenter.bl_idname, text=XYZDistanceToBoundBoxCenter.bl_label)
+
+
 def kmi_props_setattr(kmi_props, attr, value):
     try:
         setattr(kmi_props, attr, value)
