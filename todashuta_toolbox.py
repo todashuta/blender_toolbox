@@ -40,20 +40,24 @@ class XYZDistanceToBoundBoxCenter(bpy.types.Operator):
     bl_idname = "object.todashuta_toolbox_xyz_distance_to_boundbox_center"
     bl_label = "xyzDistanceToBoundBoxCenter"
 
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None and len([o for o in context.scene.objects if o.select]) == 1
+
     def execute(self, context):
         # 参考:
         # https://blenderartists.org/t/calculating-bounding-box-center-coordinates/546894/2
         # https://blender.stackexchange.com/questions/717/is-it-possible-to-print-to-the-report-window-in-the-info-view
         # https://blender.stackexchange.com/questions/6155/how-to-convert-coordinates-from-vertex-to-world-space
 
-        active_object = bpy.context.active_object
+        active_object = context.active_object
         center = sum((active_object.matrix_world * Vector(v) for v in active_object.bound_box), Vector())
         center /= 8
 
         # center - bpy.context.scene.cursor_location
         # bpy.context.scene.cursor_location - center
 
-        diff = center - bpy.context.scene.cursor_location
+        diff = center - context.scene.cursor_location
         s = "X: {0:.3f},  Y: {1:.3f},  Z: {2:.3f}".format(*[abs(x) for x in diff])
         self.report({'INFO'}, s)
         return {'FINISHED'}
@@ -67,14 +71,12 @@ class ToggleTranslatedUI(bpy.types.Operator):
     bl_idname = "object.todashuta_toolbox_toggle_translated_ui"
     bl_label = "Toggle Translated UI"
 
+    @classmethod
+    def poll(cls, context):
+        return context.user_preferences.system.use_international_fonts
+
     def execute(self, context):
-
-        if not bpy.context.user_preferences.system.use_international_fonts:
-            self.report({'WARNING'}, "[todashuta_toolbox] ローカライズを有効にしてください")
-            return {'CANCELLED'}
-
-        b = bpy.context.user_preferences.system.use_translate_interface
-        bpy.context.user_preferences.system.use_translate_interface = not b
+        context.user_preferences.system.use_translate_interface ^= 1
         return {'FINISHED'}
 
 
@@ -83,14 +85,12 @@ class ToggleTranslatedTooltips(bpy.types.Operator):
     bl_idname = "object.todashuta_toolbox_toggle_translated_tooltips"
     bl_label = "Toggle Translated Tooltips"
 
+    @classmethod
+    def poll(cls, context):
+        return context.user_preferences.system.use_international_fonts
+
     def execute(self, context):
-
-        if not bpy.context.user_preferences.system.use_international_fonts:
-            self.report({'WARNING'}, "[todashuta_toolbox] ローカライズを有効にしてください")
-            return {'CANCELLED'}
-
-        b = bpy.context.user_preferences.system.use_translate_tooltips
-        bpy.context.user_preferences.system.use_translate_tooltips = not b
+        context.user_preferences.system.use_translate_tooltips ^= 1
         return {'FINISHED'}
 
 
