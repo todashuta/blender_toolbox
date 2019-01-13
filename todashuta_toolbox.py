@@ -109,6 +109,34 @@ class ToggleMyKeymaps(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class ActiveObjectInfo(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_label = "Active Object Info"
+
+    def draw(self, context):
+        layout = self.layout
+        active_object = context.active_object
+        if active_object is None:
+            layout.label(icon="INFO", text="Active Object is None")
+            return
+
+        name, name_len = active_object.name, len(active_object.name)
+        layout.label(icon="OBJECT_DATA", text="[{}] {} ({} char{})".format(
+                active_object.type, name, name_len, "s" if name_len > 1 else ""))
+
+        if active_object.type != 'MESH':
+            return
+
+        num_uv_layers = len(active_object.data.uv_layers)
+        num_vertex_colors = len(active_object.data.vertex_colors)
+        layout.label(icon="INFO", text="{} UV Map{}, {} Vertex Color{}".format(
+                "No" if num_uv_layers == 0 else str(num_uv_layers),
+                "s"  if num_uv_layers > 1 else "",
+                "No" if num_vertex_colors == 0 else str(num_vertex_colors),
+                "s"  if num_vertex_colors > 1 else ""))
+
+
 class CustomMenu(bpy.types.Panel):
     bl_label = "todashuta toolbox"
     bl_space_type = "VIEW_3D"
