@@ -2,20 +2,6 @@ import bpy
 from mathutils import Vector
 
 
-bl_info = {
-    "name": "todashuta_toolbox",
-    "author": "todashuta",
-    "version": (1, 0, 0),
-    "blender": (2, 60, 0),
-    "location": "command menu (spacebar)",
-    "description": "todashuta_toolbox",
-    "warning": "",
-    "wiki_url": "",
-    "tracker_url": "",
-    "category": "3D View"
-}
-
-
 class NoOperation(bpy.types.Operator):
     bl_idname = "object.no_operation"
     bl_label = "NOOP"
@@ -282,17 +268,3 @@ def disable_my_keymaps():
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
-
-
-def register():
-    bpy.utils.register_module(__name__)
-    enable_my_keymaps()
-
-
-def unregister():
-    bpy.utils.unregister_module(__name__)
-    disable_my_keymaps()
-
-
-if __name__ == "__main__":
-    register()
